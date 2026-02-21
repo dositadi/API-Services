@@ -8,6 +8,7 @@ import (
 
 	m "blog/models"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gosimple/slug"
 )
@@ -102,9 +103,8 @@ func (b *BlogHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fallback to this.
-	//rawID := uuid //
-	//blog.Id = slug.Make(rawID)
+	rawID := uuid.NewString() //
+	blog.Id = slug.Make(rawID)
 
 	location := fmt.Sprintf("/Blogs/%s", blog.Id)
 
