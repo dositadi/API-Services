@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -6,12 +6,19 @@ import (
 	"net/http"
 	"time"
 
-	m "blog/models"
+	m "blog/pkg/models"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gosimple/slug"
 )
+
+type Home struct{}
+
+func (h *Home) HomeHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("This is the home page!"))
+}
 
 func ErrorMessageJson(err string, code string, details ...string) []byte {
 	errorMessage := m.ErrorMessage{
@@ -52,7 +59,20 @@ func Conflict(w http.ResponseWriter, r *http.Request) {
 	Patch(id string, field string, body any) *m.ErrorMessage /Blogs/{id}
 	Update(id string, blog m.Blog) *m.ErrorMessage /Blogs/{id}
 	Delete(id string) *m.ErrorMessage /Blogs/{id}
+	HealthCheck() *m.ErrorMessage
 } */
+
+func (b *BlogHandler) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	if err := b.Store.HealthCheck(); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		errMessage := fmt.Sprintf("%s:%+v\n", err.Error, err.Details)
+		w.Write([]byte(errMessage))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("System is alright!\n"))
+}
 
 func (b *BlogHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	rawID := mux.Vars(r)["id"]
@@ -140,7 +160,7 @@ func (b *BlogHandler) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	//w.Header()
+	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("Blog deleted successfully."))
 }
 
@@ -160,6 +180,7 @@ func (b *BlogHandler) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("Blog updated successfully."))
 }
 
@@ -182,5 +203,6 @@ func (b *BlogHandler) PatchHandler(w http.ResponseWriter, r *http.Request) {
 	successMessage := fmt.Sprintf("%+v updated successfuly.", field)
 
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(successMessage))
 }

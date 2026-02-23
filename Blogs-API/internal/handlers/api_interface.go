@@ -1,6 +1,6 @@
-package main
+package handlers
 
-import m "blog/models"
+import m "blog/pkg/models"
 
 type BlogPostInterface interface {
 	List() ([]m.Blog, *m.ErrorMessage)
@@ -9,6 +9,7 @@ type BlogPostInterface interface {
 	Patch(id string, body m.Blog) ([]string, *m.ErrorMessage)
 	Update(id string, blog m.Blog) *m.ErrorMessage
 	Delete(id string) *m.ErrorMessage
+	HealthCheck() *m.ErrorMessage
 }
 
 type BlogHandler struct {
