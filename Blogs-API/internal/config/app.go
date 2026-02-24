@@ -57,6 +57,7 @@ func (a *App) InitializeRouter() {
 	a.Router.HandleFunc("/Blogs/{id}", handler.UpdateHandler).Methods("PUT")
 	a.Router.HandleFunc("/Blogs", handler.PostHandler).Methods("POST")
 	a.Router.HandleFunc("/Blogs/Delete", handler.DeleteHandler).Methods("DELETE")
+	a.Router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 }
 
 func (a *App) Run() {

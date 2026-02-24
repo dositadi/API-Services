@@ -35,7 +35,7 @@ func ErrorMessageJson(err string, code string, details ...string) []byte {
 	return errorJson
 }
 
-func NotFound(w http.ResponseWriter, r *http.Request) {
+func (b *BlogHandler) NotFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	errorMessage := ErrorMessageJson("Not Found", "404 Not Found", "The resource cannot be found.")
 	w.Write(errorMessage)
@@ -80,38 +80,26 @@ func (b *BlogHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 	blog, err := b.Store.Get(id)
 	if err != nil {
-		NotFound(w, r)
-		return
-	}
-
-	blogJson, err2 := json.Marshal(blog)
-	if err2 != nil {
-		fmt.Println(err2.Error())
+		b.NotFound(w, r)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(blogJson)
+	json.NewEncoder(w).Encode(blog)
 }
 
 func (b *BlogHandler) ListHandler(w http.ResponseWriter, r *http.Request) {
 	blogs, err := b.Store.List()
 	if err != nil {
 		fmt.Println(err.Code)
-		NotFound(w, r)
-		return
-	}
-
-	blogsJson, err2 := json.Marshal(blogs)
-	if err2 != nil {
-		fmt.Println(err2.Error())
+		b.NotFound(w, r)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(blogsJson)
+	json.NewEncoder(w).Encode(blogs)
 }
 
 func (b *BlogHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +143,7 @@ func (b *BlogHandler) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := b.Store.Delete(id)
 	if err != nil {
-		NotFound(w, r)
+		b.NotFound(w, r)
 		return
 	}
 
@@ -176,7 +164,7 @@ func (b *BlogHandler) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	err2 := b.Store.Update(id, blog)
 	if err2 != nil {
-		NotFound(w, r)
+		b.NotFound(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -196,7 +184,7 @@ func (b *BlogHandler) PatchHandler(w http.ResponseWriter, r *http.Request) {
 
 	field, err2 := b.Store.Patch(id, blog)
 	if err2 != nil {
-		NotFound(w, r)
+		b.NotFound(w, r)
 		return
 	}
 
