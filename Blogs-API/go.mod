@@ -1,6 +1,6 @@
 module blog
 
-go 1.22.2
+go 1.24.0
 
 require (
 	github.com/go-sql-driver/mysql v1.9.3
@@ -12,4 +12,5 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
+	golang.org/x/crypto v0.48.0 // indirect
 )

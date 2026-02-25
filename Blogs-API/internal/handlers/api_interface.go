@@ -10,6 +10,8 @@ type BlogPostInterface interface {
 	Update(id string, blog m.Blog) *m.ErrorMessage
 	Delete(id string) *m.ErrorMessage
 	HealthCheck() *m.ErrorMessage
+	RegisterUser(user m.User) *m.ErrorMessage
+	LoginUser(email, password string) *m.ErrorMessage
 }
 
 type BlogHandler struct {

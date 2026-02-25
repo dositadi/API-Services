@@ -115,10 +115,12 @@ func (b *BlogHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 	blog.Id = slug.Make(rawID)
 
 	location := fmt.Sprintf("/Blogs/%s", blog.Id)
+	/* tags := fmt.Sprintf("/Blogs/%s/Blog-Tag/%s", blog.Id, blog.Id)
+	commentsLink := fmt.Sprintf("/Blogs/%s/Blog-Tag/%s", blog.Id,blog.Id) */
 
-	blog.CommentCount = len(blog.Comments)
-	blog.PublishedAt = time.RFC1123Z
-	blog.Links = append(blog.Links, m.HyperLink{Relationship: "self", HyperReference: location})
+	blog.CommentCount = 0 // Todo: work on this!!!
+	blog.PublishedAt = time.Now()
+	//blog.Links = append(append(blog.Links, m.HyperLink{Relationship: "self", HyperReference: location}), m.HyperLink{Relationship: "Tags", HyperReference: tags})
 
 	err2 := b.Store.Post(blog)
 	if err2 != nil {
