@@ -1,7 +1,0 @@
-CREATE TABLE blog_tags (
-  tag_id CHAR(36) NOT NULL PRIMARY KEY,
-  blog_id CHAR(36),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  Foreign Key (tag_id) REFERENCES tag(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  Foreign Key (blog_id) REFERENCES blogs(id) ON UPDATE CASCADE ON DELETE CASCADE
-);

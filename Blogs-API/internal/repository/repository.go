@@ -50,6 +50,7 @@ func (db *BlogStore) List() ([]m.Blog, *m.ErrorMessage) {
 				Code:    "",
 			}
 		}
+		blogs = append(blogs, blog)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -66,24 +67,30 @@ func (db *BlogStore) Get(id string) (m.Blog, *m.ErrorMessage) {
 	row := db.DB.QueryRow(`SELECT id, user_id, title, content, published_at, archive, comment_count FROM blogs WHERE id=?`, id)
 
 	var blog m.Blog
-	row.Scan(&blog.Id, &blog.UserID, &blog.Title, &blog.Content, &blog.PublishedAt, &blog.Archive, &blog.CommentCount)
-
-	if err := row.Err(); err != nil {
+	err := row.Scan(&blog.Id, &blog.UserID, &blog.Title, &blog.Content, &blog.PublishedAt, &blog.Archive, &blog.CommentCount)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return m.Blog{}, &m.ErrorMessage{
+				Error:   "Not found error.",
+				Details: []string{"Blog was not found on the database!"},
+				Code:    "404",
+			}
+		}
 		return m.Blog{}, &m.ErrorMessage{
-			Error:   "Error scanning row.",
+			Error:   "Server error",
 			Details: []string{"An Error occurred while scanning row."},
-			Code:    "",
+			Code:    "500",
 		}
 	}
 	return blog, nil
 }
 
 func (db *BlogStore) Post(blog m.Blog) *m.ErrorMessage {
-	_, err := db.DB.Exec(`INSERT INTO blogs VALUES (?,?,?,?,?,?,?)`, blog.Id, blog.UserID, blog.Title, blog.Content, blog.PublishedAt, blog.Archive, blog.CommentCount)
+	_, err := db.DB.Exec(`INSERT INTO blogs (id, user_id, title, content,archive,comment_count) VALUES (?,?,?,?,?,?)`, blog.Id, blog.UserID, blog.Title, blog.Content, blog.Archive, blog.CommentCount)
 	if err != nil {
 		return &m.ErrorMessage{
 			Error:   "Insertion Error",
-			Details: []string{"Error inserting into the database!."},
+			Details: []string{err.Error()},
 			Code:    "",
 		}
 	}

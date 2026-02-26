@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS comments (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    user_id CHAR(36) NOT NULL,
+ 	blog_id CHAR(36) NOT NULL,
+	content TEXT NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Foreign Key (blog_id) REFERENCES blogs(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    Foreign Key (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+);

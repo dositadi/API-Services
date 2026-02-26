@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS links (
+    id CHAR(36) NOT NULL PRIMARY KEY,
+    blog_id CHAR(36) NOT NULL,
+	rel VARCHAR(100) NOT NULL,
+	href VARCHAR(500) NOT NULL,
+
+    UNIQUE (blog_id,rel,href), -- Composite Unique Constraint
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (blog_id) REFERENCES blogs(id) ON UPDATE CASCADE ON DELETE CASCADE
+);

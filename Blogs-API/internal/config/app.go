@@ -2,6 +2,7 @@ package config
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -33,6 +34,7 @@ func (a *App) InitializeDB() {
 	var err error
 
 	a.DB, err = sql.Open("mysql", configString.FormatDSN())
+	fmt.Println(configString.FormatDSN())
 	if err != nil {
 		panic(err)
 	}
