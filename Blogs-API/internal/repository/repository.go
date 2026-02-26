@@ -96,7 +96,7 @@ func (db *BlogStore) Patch(id string, body m.Blog) ([]string, *m.ErrorMessage) {
 }
 
 func (db *BlogStore) Update(id string, blog m.Blog) *m.ErrorMessage {
-	if _, err := db.DB.Exec(`INSERT INTO blogs VALUES (?,?,?,?,?,?,?) WHERE id=?`, blog.Id, blog.UserID, blog.Title, blog.Content, blog.PublishedAt, blog.Archive, blog.CommentCount, id); err != nil {
+	if _, err := db.DB.Exec(`UPDATE blogs SET title=?,content=?,published_at=?, comment_count=? WHERE id=?`, blog.Title, blog.Content, blog.PublishedAt, blog.CommentCount, id); err != nil {
 		return &m.ErrorMessage{
 			Error:   "Update insertion error",
 			Details: []string{"An error occurred during insertion!."},

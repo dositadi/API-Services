@@ -53,15 +53,6 @@ func Conflict(w http.ResponseWriter, r *http.Request) {
 	w.Write(errorMessage)
 }
 
-/* type BlogPostInterface interface {
-	List() ([]m.Blog, *m.ErrorMessage) /Blogs
-	Post(blog m.Blog) *m.ErrorMessage /Blogs
-	Patch(id string, field string, body any) *m.ErrorMessage /Blogs/{id}
-	Update(id string, blog m.Blog) *m.ErrorMessage /Blogs/{id}
-	Delete(id string) *m.ErrorMessage /Blogs/{id}
-	HealthCheck() *m.ErrorMessage
-} */
-
 func (b *BlogHandler) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	if err := b.Store.HealthCheck(); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

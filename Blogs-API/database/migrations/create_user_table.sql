@@ -1,0 +1,10 @@
+CREATE TABLE users (
+  id CHAR(36) NOT NULL PRIMARY KEY,             
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
+	Username VARCHAR(50) NOT NULL UNIQUE,
+	email VARCHAR(255) NOT NULL UNIQUE,
+	hashed_password VARCHAR(255) NOT NULL,
+  hashed_passkey VARCHAR(255) NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

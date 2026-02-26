@@ -1,0 +1,10 @@
+CREATE TABLE blogs (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+	user_id CHAR(36) NOT NULL,
+	title VARCHAR(300) NOT NULL,
+	content TEXT NOT NULL,
+	published_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	archive Enum('false','true') NOT NULL,
+	comment_count INT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
