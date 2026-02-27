@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	m "blog/pkg/models"
+	h "blog/pkg/utils"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -25,36 +25,21 @@ func (h *Home) HomeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("This is the home page!"))
 }
 
-func ErrorMessageJson(err string, code string, details ...string) []byte {
-	errorMessage := m.ErrorMessage{
-		Error:   err,
-		Code:    code,
-		Details: details,
-	}
-
-	errorJson, err2 := json.Marshal(errorMessage)
-	if err2 != nil {
-		fmt.Println(err2)
-		return nil
-	}
-	return errorJson
-}
-
 func (b *BlogHandler) NotFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	errorMessage := ErrorMessageJson("Not Found", "404", "The resource cannot be found.")
+	errorMessage := h.ErrorMessageJson("Not Found", "404", "The resource cannot be found.")
 	w.Write(errorMessage)
 }
 
 func BadRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
-	errorMessage := ErrorMessageJson("Bad Request", "400", "The input is invalid.")
+	errorMessage := h.ErrorMessageJson("Bad Request", "400", "The input is invalid.")
 	w.Write(errorMessage)
 }
 
 func Conflict(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusConflict)
-	errorMessage := ErrorMessageJson("Conflict", "409", "The blog already exists.")
+	errorMessage := h.ErrorMessageJson("Conflict", "409", "The blog already exists.")
 	w.Write(errorMessage)
 }
 
@@ -76,7 +61,13 @@ func (b *BlogHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 	blog, err := b.Store.Get(id)
 	if err != nil {
-		b.NotFound(w, r)
+		if err.Error == h.NOT_FOUND_ERR {
+			errorMessage := h.ErrorMessageJson(err.Error, err.Code, err.Details...)
+			h.Response(w, r, errorMessage, http.StatusNotFound)
+			return
+		}
+		errorMessage := h.ErrorMessageJson(err.Error, err.Code, err.Details...)
+		h.Response(w, r, errorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -88,8 +79,19 @@ func (b *BlogHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 func (b *BlogHandler) ListHandler(w http.ResponseWriter, r *http.Request) {
 	blogs, err := b.Store.List()
 	if err != nil {
-		fmt.Println(err.Code)
-		b.NotFound(w, r)
+		if err.Error == h.CONN_ERR {
+			errorMessage := h.ErrorMessageJson(err.Error, err.Code, err.Details...)
+			h.Response(w, r, errorMessage, http.StatusNotFound)
+			return
+		}
+
+		if err.Error == h.SERVER_ERROR {
+			errorMessage := h.ErrorMessageJson(err.Error, err.Code, err.Details...)
+			h.Response(w, r, errorMessage, http.StatusNotFound)
+			return
+		}
+		errorMessage := h.ErrorMessageJson(err.Error, err.Code, err.Details...)
+		h.Response(w, r, errorMessage, http.StatusNotFound)
 		return
 	}
 
@@ -99,34 +101,37 @@ func (b *BlogHandler) ListHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (b *BlogHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
-	blog := m.Blog{}
+	title := mux.Vars(r)["title"]
+	content := mux.Vars(r)["content"]
 
-	err := json.NewDecoder(r.Body).Decode(&blog)
+	var blog m.Blog
+
+	/* err := json.NewDecoder(r.Body).Decode(&blog)
 	if err != nil {
-		fmt.Println(err.Error())
+		err := m.ErrorMessage{
+			Error:   h.BAD_REQ_ERROR,
+			Details: []string{h.BAD_REQ_ERROR_DETAILS},
+			Code:    h.BAD_REQ_ERROR_CODE,
+		}
+		errorMessage := h.ErrorMessageJson(err.Error, err.Code, err.Details...)
+		h.Response(w, r, errorMessage, http.StatusBadRequest)
 		return
 	}
+	*/
 
-	rawID := uuid.NewString() //
-	blog.Id = slug.Make(rawID)
+	blog.Title = &title
+	blog.Content = &content
+	blog.Id = uuid.NewString()
+	blog.Archive = false
+	blog.CommentCount = 0
 
-	location := fmt.Sprintf("/Blogs/%s", blog.Id)
-	/* tags := fmt.Sprintf("/Blogs/%s/Blog-Tag/%s", blog.Id, blog.Id)
-	commentsLink := fmt.Sprintf("/Blogs/%s/Blog-Tag/%s", blog.Id,blog.Id) */
-
-	blog.CommentCount = 0 // Todo: work on this!!!
-	blog.PublishedAt = time.Now()
-	//blog.Links = append(append(blog.Links, m.HyperLink{Relationship: "self", HyperReference: location}), m.HyperLink{Relationship: "Tags", HyperReference: tags})
+	location := fmt.Sprintf("/blogs/%s", blog.Id)
 
 	err2 := b.Store.Post(blog)
 	if err2 != nil {
-		if err2.Code == "400 Bad Request" { // Customize error message.
-			BadRequest(w, r)
-			return
-		} else {
-			Conflict(w, r)
-			return
-		}
+		errorMessage := h.ErrorMessageJson(err2.Error, err2.Code, err2.Details...)
+		h.Response(w, r, errorMessage, http.StatusBadRequest)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -160,7 +165,7 @@ func (b *BlogHandler) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	_, err2 := b.Store.Update(id, blog)
+	err2 := b.Store.Update(id, blog)
 	if err2 != nil {
 		b.NotFound(w, r)
 		return
@@ -180,13 +185,13 @@ func (b *BlogHandler) PatchHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	field, err2 := b.Store.Patch(id, query)
+	err2 := b.Store.Patch(id, query)
 	if err2 != nil {
 		b.NotFound(w, r)
 		return
 	}
 
-	successMessage := fmt.Sprintf("%+v updated successfuly.", field)
+	successMessage := fmt.Sprintf("Updated successfuly.")
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")

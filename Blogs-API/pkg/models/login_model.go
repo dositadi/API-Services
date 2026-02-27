@@ -1,4 +1,6 @@
+package models
+
 type Login struct {
-	email    string
-	password string
+	Email    string
+	Password string
 }

@@ -12,3 +12,11 @@ type User struct {
 	HashedPasskey  string `json:"hashed_passkey"`
 	CreatedAt      time.Time
 }
+
+type ActiveUser struct {
+	ID        string `json:"id"`
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+}

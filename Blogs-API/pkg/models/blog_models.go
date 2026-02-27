@@ -5,8 +5,8 @@ import "time"
 type Blog struct {
 	Id           string    `json:"id"`
 	UserID       string    `json:"user_id"` // Foreign key
-	Title        string    `json:"title"`
-	Content      string    `json:"content"`
+	Title        *string   `json:"title"`
+	Content      *string   `json:"content"`
 	PublishedAt  time.Time `json:"published_at,omitempty"`
 	Archive      bool      `json:"archive,omitempty"`
 	CommentCount int       `json:"comment_count,omitempty"`
