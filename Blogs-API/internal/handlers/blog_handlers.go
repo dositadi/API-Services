@@ -191,7 +191,7 @@ func (b *BlogHandler) PatchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	successMessage := fmt.Sprintf("Updated successfuly.")
+	successMessage := "Updated successfuly."
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
