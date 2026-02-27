@@ -13,6 +13,11 @@ import (
 	"github.com/gosimple/slug"
 )
 
+const (
+	CONTENT_TYPE = "Content-Type"
+	JSON         = "application/json"
+)
+
 type Home struct{}
 
 func (h *Home) HomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,19 +42,19 @@ func ErrorMessageJson(err string, code string, details ...string) []byte {
 
 func (b *BlogHandler) NotFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	errorMessage := ErrorMessageJson("Not Found", "404 Not Found", "The resource cannot be found.")
+	errorMessage := ErrorMessageJson("Not Found", "404", "The resource cannot be found.")
 	w.Write(errorMessage)
 }
 
 func BadRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
-	errorMessage := ErrorMessageJson("Bad Request", "400 Bad Request", "The input is invalid.")
+	errorMessage := ErrorMessageJson("Bad Request", "400", "The input is invalid.")
 	w.Write(errorMessage)
 }
 
 func Conflict(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusConflict)
-	errorMessage := ErrorMessageJson("Conflict", "409 Conflict", "The blog already exists.")
+	errorMessage := ErrorMessageJson("Conflict", "409", "The blog already exists.")
 	w.Write(errorMessage)
 }
 
@@ -115,7 +120,7 @@ func (b *BlogHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	err2 := b.Store.Post(blog)
 	if err2 != nil {
-		if err2.Code == "400 Bad Request" {
+		if err2.Code == "400 Bad Request" { // Customize error message.
 			BadRequest(w, r)
 			return
 		} else {
@@ -155,7 +160,7 @@ func (b *BlogHandler) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	err2 := b.Store.Update(id, blog)
+	_, err2 := b.Store.Update(id, blog)
 	if err2 != nil {
 		b.NotFound(w, r)
 		return
@@ -168,14 +173,14 @@ func (b *BlogHandler) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 func (b *BlogHandler) PatchHandler(w http.ResponseWriter, r *http.Request) {
 	rawID := mux.Vars(r)["id"]
 	id := slug.Make(rawID)
-	blog := m.Blog{}
+	var query map[string]string
 
-	err := json.NewDecoder(r.Body).Decode(&blog)
+	err := json.NewDecoder(r.Body).Decode(&query)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	field, err2 := b.Store.Patch(id, blog)
+	field, err2 := b.Store.Patch(id, query)
 	if err2 != nil {
 		b.NotFound(w, r)
 		return

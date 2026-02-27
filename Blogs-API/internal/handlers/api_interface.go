@@ -6,8 +6,8 @@ type BlogPostInterface interface {
 	List() ([]m.Blog, *m.ErrorMessage)
 	Get(id string) (m.Blog, *m.ErrorMessage)
 	Post(blog m.Blog) *m.ErrorMessage
-	Patch(id string, body m.Blog) ([]string, *m.ErrorMessage)
-	Update(id string, blog m.Blog) *m.ErrorMessage
+	Patch(id string, query map[string]string) (int, *m.ErrorMessage)
+	Update(id string, blog m.Blog) (int, *m.ErrorMessage)
 	Delete(id string) *m.ErrorMessage
 	HealthCheck() *m.ErrorMessage
 	RegisterUser(user m.User) *m.ErrorMessage
