@@ -11,7 +11,7 @@ const (
 
 // Get hashed password
 const (
-	GET_HASHED_QUERY = `SELECT id, firstname, lastname, username, hashed_password FROM users WHERE email=?`
+	GET_HASHED_QUERY = `SELECT id, username, hashed_password FROM users WHERE email=?`
 
 	COMPARE_HASH_ERR        = `Incorrect password.`
 	COMPARE_HASH_ERR_DETAIL = `You entered an incorrect password.`
@@ -54,6 +54,10 @@ const (
 	ALREADY_EXISTS_ERROR        = `Already exists.`
 	ALREADY_EXISTS_ERROR_DETAIL = `The user already exists. (Hint: Kindly check your email or username.)`
 	ALREADY_EXISTS_ERROR_CODE   = `409`
+
+	UNAUTHORIZED_ACCESS        = `Unauthorized access.`
+	UNAUTHORIZED_ACCESS_CODE   = `401`
+	UNAUTHORIZED_ACCESS_DETAIL = `You are not authorised to access this page. Check your login credentials.`
 )
 
 // Bcrypt hash password
@@ -73,14 +77,16 @@ const (
 
 // User Input validations
 const (
-	EMAIL_EMPTY     = `Email should not be empty.`
-	EMPTY_FIELD     = `Empty field.`
-	FIRSTNAME_EMPTY = `Firstname should not be empty.`
-	LASTNAME_EMPTY  = `Lastname should not be empty.`
-	PASSWORD_EMPTY  = `Password should not be empty.`
-	SHORTPASSWORD   = `Password should should be at least 6 characters.`
-	PASSKEY_EMPTY   = `Passkey should not be empty.`
-	LONGPASSKEY     = `Passkey should be at most 6 characters.`
-	USERNAME_EMPTY  = `Username should not be empty.`
-	SUCCESS_MESSAGE = `You have been registered successfully.`
+	EMAIL_EMPTY          = `Email should not be empty.`
+	EMPTY_FIELD          = `Empty field.`
+	INVALID_EMAIL        = `Invalid email`
+	INVALID_EMAIL_DETAIL = `Invalid email. Try correcting the email to look like johndoe23@gmail.com or johndoe@gmail.com`
+	FIRSTNAME_EMPTY      = `Firstname should not be empty.`
+	LASTNAME_EMPTY       = `Lastname should not be empty.`
+	PASSWORD_EMPTY       = `Password should not be empty.`
+	SHORTPASSWORD        = `Password should should be at least 6 characters.`
+	PASSKEY_EMPTY        = `Passkey should not be empty.`
+	LONGPASSKEY          = `Passkey should be at most 6 characters.`
+	USERNAME_EMPTY       = `Username should not be empty.`
+	SUCCESS_MESSAGE      = `You have been registered successfully.`
 )

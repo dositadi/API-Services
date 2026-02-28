@@ -20,16 +20,14 @@ func GetHashedPassword(db *sql.DB, email string) (string, *m.ActiveUser, *m.Erro
 			}
 		}
 		return "", nil, &m.ErrorMessage{
-			Error:   CONN_ERR,
-			Details: []string{err.Error()},
-			Code:    "",
+			Error:   SERVER_ERROR,
+			Details: []string{SERVER_ERROR_DETAIL},
+			Code:    SERVER_ERROR_CODE,
 		}
 	}
 
 	user := &m.ActiveUser{
 		ID:        id,
-		Firstname: firstname,
-		Lastname:  lastname,
 		Username:  username,
 		Email:     email,
 	}

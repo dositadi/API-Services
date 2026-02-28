@@ -23,6 +23,10 @@ func (b *BlogHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 		errorMessage := h.ErrorMessageJson(h.EMPTY_FIELD, h.BAD_REQ_ERROR_CODE, h.EMAIL_EMPTY)
 		h.Response(w, r, errorMessage, http.StatusBadRequest)
 		return
+	} else if !h.ValidateEmail(email) {
+		errorMessage := h.ErrorMessageJson(h.INVALID_EMAIL, h.BAD_REQ_ERROR_CODE, h.INVALID_EMAIL_DETAIL)
+		h.Response(w, r, errorMessage, http.StatusBadRequest)
+		return
 	} else if firstname == "" {
 		errorMessage := h.ErrorMessageJson(h.EMPTY_FIELD, h.BAD_REQ_ERROR_CODE, h.FIRSTNAME_EMPTY)
 		h.Response(w, r, errorMessage, http.StatusBadRequest)
@@ -66,8 +70,6 @@ func (b *BlogHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 		h.Response(w, r, errorMessage, http.StatusBadRequest)
 		return
 	}
-
-	// Validate email with regex.
 
 	user.ID = uuid.NewString()
 	user.CreatedAt = time.Now()

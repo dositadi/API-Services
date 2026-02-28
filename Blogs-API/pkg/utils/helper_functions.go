@@ -3,6 +3,7 @@ package utils
 import (
 	m "blog/pkg/models"
 	"errors"
+	"regexp"
 
 	b "golang.org/x/crypto/bcrypt"
 )
@@ -60,3 +61,11 @@ func HashedCost(hashedPassword string) (int, error) {
 	}
 	return cost, nil
 }
+
+func ValidateEmail(email string) bool {
+	re := regexp.MustCompile(`^[a-zA-Z]([a-zA-Z0-9\-\._]+)@`)
+
+	return re.Match([]byte(email))
+}
+
+
