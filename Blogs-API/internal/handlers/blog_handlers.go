@@ -72,7 +72,7 @@ func (b *BlogHandler) GetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(h.CONTENT_TYPE, h.JSON)
 	json.NewEncoder(w).Encode(blog)
 }
 
@@ -96,34 +96,30 @@ func (b *BlogHandler) ListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(h.CONTENT_TYPE, h.JSON)
 	json.NewEncoder(w).Encode(blogs)
 }
 
 func (b *BlogHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
-	title := mux.Vars(r)["title"]
-	content := mux.Vars(r)["content"]
+	title := r.PostForm.Get("title")
+	content := r.PostForm.Get("content")
+	val := r.Context().Value("user_id")
 
-	var blog m.Blog
-
-	/* err := json.NewDecoder(r.Body).Decode(&blog)
-	if err != nil {
-		err := m.ErrorMessage{
-			Error:   h.BAD_REQ_ERROR,
-			Details: []string{h.BAD_REQ_ERROR_DETAILS},
-			Code:    h.BAD_REQ_ERROR_CODE,
-		}
-		errorMessage := h.ErrorMessageJson(err.Error, err.Code, err.Details...)
+	userId, ok := val.(string)
+	if !ok {
+		errorMessage := h.ErrorMessageJson(h.BAD_REQ_ERROR, h.BAD_REQ_ERROR_CODE, h.BAD_REQ_ERROR_DETAILS)
 		h.Response(w, r, errorMessage, http.StatusBadRequest)
 		return
 	}
-	*/
+
+	var blog m.Blog
 
 	blog.Title = &title
 	blog.Content = &content
 	blog.Id = uuid.NewString()
 	blog.Archive = false
 	blog.CommentCount = 0
+	blog.UserID = userId
 
 	location := fmt.Sprintf("/blogs/%s", blog.Id)
 
@@ -135,7 +131,7 @@ func (b *BlogHandler) PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(h.CONTENT_TYPE, h.JSON)
 	w.Header().Set("Location", location)
 	w.Write([]byte("Blog created"))
 }
@@ -151,7 +147,7 @@ func (b *BlogHandler) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(h.CONTENT_TYPE, h.JSON)
 	w.Write([]byte("Blog deleted successfully."))
 }
 
@@ -171,7 +167,7 @@ func (b *BlogHandler) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(h.CONTENT_TYPE, h.JSON)
 	w.Write([]byte("Blog updated successfully."))
 }
 
@@ -194,6 +190,6 @@ func (b *BlogHandler) PatchHandler(w http.ResponseWriter, r *http.Request) {
 	successMessage := "Updated successfuly."
 
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(h.CONTENT_TYPE, h.JSON)
 	w.Write([]byte(successMessage))
 }

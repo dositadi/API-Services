@@ -27,9 +27,9 @@ func GetHashedPassword(db *sql.DB, email string) (string, *m.ActiveUser, *m.Erro
 	}
 
 	user := &m.ActiveUser{
-		ID:        id,
-		Username:  username,
-		Email:     email,
+		ID:       id,
+		Username: username,
+		Email:    email,
 	}
 	return hashed_password, user, nil
 }

@@ -67,5 +67,3 @@ func ValidateEmail(email string) bool {
 
 	return re.Match([]byte(email))
 }
-
-

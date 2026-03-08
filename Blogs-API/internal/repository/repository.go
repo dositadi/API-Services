@@ -20,14 +20,6 @@ func NewBlogStore(db *sql.DB) *BlogStore {
 	}
 }
 
-var (
-	User = &m.ActiveUser{}
-)
-
-func CurrentUser(user m.ActiveUser) {
-	*User = user
-}
-
 func (b *BlogStore) HealthCheck() *m.ErrorMessage {
 	if err := b.DB.Ping(); err != nil {
 		return &m.ErrorMessage{
@@ -105,7 +97,7 @@ func (db *BlogStore) Get(id string) (m.Blog, *m.ErrorMessage) {
 }
 
 func (db *BlogStore) Post(blog m.Blog) *m.ErrorMessage {
-	blog.UserID = ""
+	blog.UserID = blog.UserID
 
 	_, err := db.DB.Exec(h.POST_QUERY, blog.Id, blog.UserID, blog.Title, blog.Content, blog.Archive, blog.CommentCount)
 	if err != nil {

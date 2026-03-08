@@ -9,9 +9,14 @@ const (
 	DELETE_QUERY = `DELETE FROM blogs WHERE id=?`
 )
 
+// Comments Query
+const (
+	LIST_COMMENT_QUERY = "SELECT * FROM comments WHERE blog_id=?"
+)
+
 // Get hashed password
 const (
-	GET_HASHED_QUERY = `SELECT id, username, hashed_password FROM users WHERE email=?`
+	GET_HASHED_QUERY = `SELECT id, first_name, last_name, username, hashed_password FROM users WHERE email=?`
 
 	COMPARE_HASH_ERR        = `Incorrect password.`
 	COMPARE_HASH_ERR_DETAIL = `You entered an incorrect password.`

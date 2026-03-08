@@ -15,7 +15,7 @@ func (b *BlogHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 	email := r.PostFormValue("email")
 	firstname := r.PostFormValue("firstname")
 	lastname := r.PostFormValue("lastname")
-	username := r.PostFormValue("userpassword")
+	username := r.PostFormValue("username")
 	passkey := r.PostFormValue("passkey")
 	password := r.PostFormValue("password")
 
@@ -91,5 +91,5 @@ func (b *BlogHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	h.Response(w, r, []byte(h.SUCCESS_MESSAGE), http.StatusOK)
+	h.Response(w, r, []byte(h.SUCCESS_MESSAGE), http.StatusCreated)
 }

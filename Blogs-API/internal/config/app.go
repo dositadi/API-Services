@@ -22,51 +22,57 @@ type App struct {
 	Config Configuration
 }
 
-func (a *App) InitializeBlogRouter(handler b.BlogHandler) {
+func (a *App) InitializeBlogRouter(router *mux.Router, handler b.BlogHandler) {
 	// Blog handlers.
-	a.Router.HandleFunc("/", handler.ListHandler).Methods("GET")
-	a.Router.HandleFunc("/s{id}", handler.GetHandler).Methods("GET")
-	a.Router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
-	a.Router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
-	a.Router.HandleFunc("/", handler.PostHandler).Methods("POST")
-	a.Router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE")
-	a.Router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
+	router.HandleFunc("/", handler.ListHandler).Methods("GET")
+	router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
+	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
+	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
+	router.HandleFunc("/", handler.PostHandler).Methods("POST")
+	router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE")
+	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 }
 
-func (a *App) InitializeUserRouter(handler b.BlogHandler) {
-	// Blog handlers.
-	// implement the handlers
-	a.Router.HandleFunc("/", handler.ListHandler).Methods("GET")
-	a.Router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
-	a.Router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
-	a.Router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
-	a.Router.HandleFunc("/", handler.PostHandler).Methods("POST")
-	a.Router.HandleFunc("/", handler.DeleteHandler).Methods("DELETE")
-	a.Router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
+func (a *App) InitializeAuthRouter(router *mux.Router, handler b.BlogHandler) {
+	// Auth handlers
+	router.HandleFunc("/register", handler.RegisterUserHandler).Methods("POST").Name("Register")
+	router.HandleFunc("/login", handler.LoginUserHandler).Methods("POST").Name("Login")
 }
 
-func (a *App) InitializeCommentsRouter(handler b.BlogHandler) {
-	// Blog handlers.
+func (a *App) InitializeUserRouter(router *mux.Router, handler b.BlogHandler) {
+	// User handlers.
 	// implement the handlers
-	a.Router.HandleFunc("/", handler.ListHandler).Methods("GET")
-	a.Router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
-	a.Router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
-	a.Router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
-	a.Router.HandleFunc("/", handler.PostHandler).Methods("POST")
-	a.Router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE")
-	a.Router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
+	router.HandleFunc("/", handler.ListHandler).Methods("GET")
+	router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
+	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
+	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
+	router.HandleFunc("/", handler.PostHandler).Methods("POST")
+	router.HandleFunc("/", handler.DeleteHandler).Methods("DELETE")
+	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 }
 
-func (a *App) InitializetagsRouter(handler b.BlogHandler) {
-	// Blog handlers.
+func (a *App) InitializeCommentsRouter(router *mux.Router, handler b.BlogHandler) {
+	// Comment handlers.
 	// implement the handlers
-	a.Router.HandleFunc("/", handler.ListHandler).Methods("GET")
-	a.Router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
-	a.Router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
-	a.Router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
-	a.Router.HandleFunc("/", handler.PostHandler).Methods("POST")
-	a.Router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE")
-	a.Router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
+	router.HandleFunc("/", handler.ListHandler).Methods("GET")
+	router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
+	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
+	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
+	router.HandleFunc("/", handler.PostHandler).Methods("POST")
+	router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE")
+	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
+}
+
+func (a *App) InitializetagsRouter(router *mux.Router, handler b.BlogHandler) {
+	// Tags handlers.
+	// implement the handlers
+	router.HandleFunc("/", handler.ListHandler).Methods("GET")
+	router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
+	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
+	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
+	router.HandleFunc("/", handler.PostHandler).Methods("POST")
+	router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE")
+	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 }
 
 func (a *App) InitializeDB() {
@@ -101,20 +107,26 @@ func (a *App) InitializeRouter() {
 	handler := b.NewBlogHandler(database)
 
 	r := a.Router.NewRoute().Subrouter()
-	userRoute := r.PathPrefix("/users")
-	blogRoutes := r.PathPrefix("/blogs")
-	commentRoute := r.PathPrefix("/comments")
-	tagRoute := r.PathPrefix("/tags")
 
-	userRoute.Subrouter().Use(m.AuthenticateJWT)
-	blogRoutes.Subrouter().Use(m.AuthenticateJWT)
-	commentRoute.Subrouter().Use(m.AuthenticateJWT)
-	tagRoute.Subrouter().Use(m.AuthenticateJWT)
+	authRoute := r.PathPrefix("/auth").Subrouter()
 
-	a.InitializeBlogRouter(*handler)
-	a.InitializeCommentsRouter(*handler)
-	a.InitializeUserRouter(*handler)
-	a.InitializetagsRouter(*handler)
+	userRoute := r.PathPrefix("/users").Subrouter()
+	userRoute.Use(m.AuthenticateJWT)
+
+	blogRoute := r.PathPrefix("/blogs").Subrouter()
+	blogRoute.Use(m.AuthenticateJWT)
+
+	commentRoute := r.PathPrefix("/comments").Subrouter()
+	commentRoute.Use(m.AuthenticateJWT)
+
+	tagRoute := r.PathPrefix("/tags").Subrouter()
+	tagRoute.Use(m.AuthenticateJWT)
+
+	a.InitializeBlogRouter(blogRoute, *handler)
+	a.InitializeCommentsRouter(commentRoute, *handler)
+	a.InitializeUserRouter(userRoute, *handler)
+	a.InitializetagsRouter(tagRoute, *handler)
+	a.InitializeAuthRouter(authRoute, *handler)
 
 	a.Router.HandleFunc("/health", handler.HealthCheckHandler).Methods("GET")
 }
@@ -123,10 +135,10 @@ func (a *App) Run() {
 	server := &http.Server{
 		Addr:              ":8080",
 		Handler:           a.Router,
-		ReadTimeout:       500 * time.Millisecond,
-		WriteTimeout:      500 * time.Millisecond,
-		ReadHeaderTimeout: 500 * time.Millisecond,
-		IdleTimeout:       1000 * time.Millisecond,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       10 * time.Second,
 	}
 
 	log.Fatal(server.ListenAndServe())

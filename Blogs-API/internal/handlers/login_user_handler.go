@@ -64,7 +64,7 @@ func (b *BlogHandler) LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{HttpOnly: true, Value: refreshToken, Name: "Refresh token"})
+	http.SetCookie(w, &http.Cookie{HttpOnly: true, Value: refreshToken, Name: "refresh_token", Path: "/", Secure: true})
 
 	h.Response(w, r, []byte(accessToken), http.StatusOK)
 }
