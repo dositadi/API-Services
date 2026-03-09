@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"strings"
 
 	m "blog/pkg/models"
@@ -48,7 +49,7 @@ func (db *BlogStore) List() ([]m.Blog, *m.ErrorMessage) {
 	for rows.Next() {
 		var blog m.Blog
 		if err := rows.Scan(&blog.Id, &blog.UserID, &blog.Title, &blog.Content, &blog.PublishedAt, &blog.Archive, &blog.CommentCount); err != nil {
-			if err == sql.ErrConnDone {
+			if errors.Is(err, sql.ErrConnDone) {
 				return blogs, &m.ErrorMessage{
 					Error:   h.CONN_ERR,
 					Details: []string{err.Error()},
@@ -97,7 +98,7 @@ func (db *BlogStore) Get(id string) (m.Blog, *m.ErrorMessage) {
 }
 
 func (db *BlogStore) Post(blog m.Blog) *m.ErrorMessage {
-	blog.UserID = blog.UserID
+	blog.UserID = blog.Id
 
 	_, err := db.DB.Exec(h.POST_QUERY, blog.Id, blog.UserID, blog.Title, blog.Content, blog.Archive, blog.CommentCount)
 	if err != nil {
@@ -178,7 +179,7 @@ func (db *BlogStore) Update(id string, blog m.Blog) *m.ErrorMessage {
 	if err2 != nil {
 		return &m.ErrorMessage{
 			Error:   h.CONN_ERR,
-			Details: []string{err.Error()},
+			Details: []string{h.SERVER_ERROR_DETAIL},
 			Code:    h.SERVER_ERROR_CODE,
 		}
 	}

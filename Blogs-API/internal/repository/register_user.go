@@ -4,6 +4,7 @@ import (
 	m "blog/pkg/models"
 	h "blog/pkg/utils"
 	"database/sql"
+	"errors"
 )
 
 func (db *BlogStore) RegisterUser(user m.User) *m.ErrorMessage {
@@ -29,7 +30,7 @@ func (db *BlogStore) RegisterUser(user m.User) *m.ErrorMessage {
 
 	_, err2 := db.DB.Exec(h.INSERT_USER_QUERY, user.ID, user.Firstname, user.Lastname, user.Username, user.Email, user.HashedPassword, user.HashedPasskey)
 	if err2 != nil {
-		if err2 == sql.ErrConnDone {
+		if errors.Is(err2, sql.ErrConnDone) {
 			return &m.ErrorMessage{
 				Error:   h.SERVER_ERROR,
 				Details: []string{h.SERVER_ERROR_DETAIL},

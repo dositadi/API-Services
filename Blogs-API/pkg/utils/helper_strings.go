@@ -1,5 +1,11 @@
 package utils
 
+// Heeader setters
+const (
+	CONTENT_TYPE = "Content-Type"
+	JSON         = "application/json"
+)
+
 // Blogs Table Query
 const (
 	LIST_QUERY   = `SELECT * FROM blogs ORDER BY published_at DESC`
@@ -11,7 +17,11 @@ const (
 
 // Comments Query
 const (
-	LIST_COMMENT_QUERY = "SELECT * FROM comments WHERE blog_id=?"
+	LIST_COMMENTS_QUERY  = "SELECT * FROM comments WHERE blog_id=?"
+	GET_COMMENT_QUERY    = "SELECT * FROM comments WHERE blog_id=? and id=?"
+	POST_COMMENT_QUERY   = "INSERT INTO comments (id, blog_id, content) VALUES (?,?,?)"
+	UPDATE_COMMENT_QUERY = "UPDATE comments SET content=? WHERE blog_id=? AND id=?"
+	DELETE_COMMENT_QUERY = "DELETE FROM comments WHERE blog_id=? AND id=?"
 )
 
 // Get hashed password

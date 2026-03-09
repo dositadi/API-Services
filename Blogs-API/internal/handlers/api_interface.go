@@ -1,6 +1,9 @@
 package handlers
 
-import m "blog/pkg/models"
+import (
+	m "blog/pkg/models"
+	"context"
+)
 
 type BlogPostInterface interface {
 	// Blog functions
@@ -12,12 +15,12 @@ type BlogPostInterface interface {
 	Delete(id string) *m.ErrorMessage
 
 	// Comments functions
-	ListComments(blog_id string) ([]m.Comment, *m.ErrorMessage)
-	GetComment(blog_id, id string) (m.Comment, *m.ErrorMessage)
-	PostComment(blog_id, id string) *m.ErrorMessage
-	PatchComment(blog_id, id string, query map[string]string) *m.ErrorMessage
-	UpdateComment(blog_id, id string, comment m.Comment) *m.ErrorMessage
-	DeleteComment(blog_id, id string) *m.ErrorMessage
+	ListComments(ctx context.Context, blog_id string) ([]m.Comment, *m.ErrorMessage)
+	GetComment(ctx context.Context, blog_id, id string) (m.Comment, *m.ErrorMessage)
+	PostComment(ctx context.Context, blog_id, id string, comment m.Comment) *m.ErrorMessage
+	PatchComment(ctx context.Context, blog_id, id string, query map[string]string) *m.ErrorMessage
+	UpdateComment(ctx context.Context, blog_id, id string, comment m.Comment) *m.ErrorMessage
+	DeleteComment(ctx context.Context, blog_id, id string) *m.ErrorMessage
 
 	// Health Check
 	HealthCheck() *m.ErrorMessage

@@ -24,19 +24,19 @@ type App struct {
 
 func (a *App) InitializeBlogRouter(router *mux.Router, handler b.BlogHandler) {
 	// Blog handlers.
-	router.HandleFunc("/", handler.ListHandler).Methods("GET")
-	router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
-	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
-	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
-	router.HandleFunc("/", handler.PostHandler).Methods("POST")
-	router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE")
+	router.HandleFunc("/", handler.ListHandler).Methods("GET").Name("list-all-blogs")
+	router.HandleFunc("/{id}", handler.GetHandler).Methods("GET").Name("get-blog")
+	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH").Name("update-blog-fields")
+	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT").Name("update-full-blog")
+	router.HandleFunc("/", handler.PostHandler).Methods("POST").Name("post-blog")
+	router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE").Name("delete-blog")
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 }
 
 func (a *App) InitializeAuthRouter(router *mux.Router, handler b.BlogHandler) {
 	// Auth handlers
-	router.HandleFunc("/register", handler.RegisterUserHandler).Methods("POST").Name("Register")
-	router.HandleFunc("/login", handler.LoginUserHandler).Methods("POST").Name("Login")
+	router.HandleFunc("/register", handler.RegisterUserHandler).Methods("POST").Name("register")
+	router.HandleFunc("/login", handler.LoginUserHandler).Methods("POST").Name("login")
 }
 
 func (a *App) InitializeUserRouter(router *mux.Router, handler b.BlogHandler) {
@@ -54,12 +54,12 @@ func (a *App) InitializeUserRouter(router *mux.Router, handler b.BlogHandler) {
 func (a *App) InitializeCommentsRouter(router *mux.Router, handler b.BlogHandler) {
 	// Comment handlers.
 	// implement the handlers
-	router.HandleFunc("/", handler.ListHandler).Methods("GET")
-	router.HandleFunc("/{id}", handler.GetHandler).Methods("GET")
-	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH")
-	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT")
-	router.HandleFunc("/", handler.PostHandler).Methods("POST")
-	router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE")
+	router.HandleFunc("/", handler.ListCommentsHandler).Methods("GET").Name("list-all-comments")
+	router.HandleFunc("/{id}", handler.GetCommentHandler).Methods("GET").Name("get-comment")
+	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH").Name("update-comment-field")
+	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT").Name("update-full-comment")
+	router.HandleFunc("/", handler.PostHandler).Methods("POST").Name("post-comment")
+	router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE").Name("delete-comment")
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 }
 
