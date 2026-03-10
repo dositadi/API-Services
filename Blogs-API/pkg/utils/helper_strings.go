@@ -8,20 +8,23 @@ const (
 
 // Blogs Table Query
 const (
-	LIST_QUERY   = `SELECT * FROM blogs ORDER BY published_at DESC`
-	GET_QUERY    = `SELECT id, user_id, title, content, published_at, archive, comment_count FROM blogs WHERE id=?`
-	POST_QUERY   = `INSERT INTO blogs (id, user_id, title, content,archive,comment_count) VALUES (?,?,?,?,?,?)`
-	UPDATE_QUERY = `UPDATE blogs SET title=?,content=?,published_at=?, comment_count=? WHERE id=?`
-	DELETE_QUERY = `DELETE FROM blogs WHERE id=?`
+	LIST_QUERY                      = `SELECT * FROM blogs ORDER BY published_at DESC`
+	GET_QUERY                       = `SELECT id, user_id, title, content, published_at, archive, comment_count FROM blogs WHERE id=?`
+	POST_QUERY                      = `INSERT INTO blogs (id, user_id, title, content,archive,comment_count) VALUES (?,?,?,?,?,?)`
+	UPDATE_QUERY                    = `UPDATE blogs SET title=?,content=?,published_at=?, comment_count=? WHERE id=?`
+	DELETE_QUERY                    = `DELETE FROM blogs WHERE id=?`
+	UPDATE_COMMENT_COUNT_QUERY_INCR = "UPDATE blogs SET comment_count = comment_count + 1 WHERE id="
+	UPDATE_COMMENT_COUNT_QUERY_DESC = "UPDATE blogs SET comment_count = comment_count - 1 WHERE id="
 )
 
 // Comments Query
 const (
-	LIST_COMMENTS_QUERY  = "SELECT * FROM comments WHERE blog_id=?"
-	GET_COMMENT_QUERY    = "SELECT * FROM comments WHERE blog_id=? and id=?"
-	POST_COMMENT_QUERY   = "INSERT INTO comments (id, blog_id, content) VALUES (?,?,?)"
-	UPDATE_COMMENT_QUERY = "UPDATE comments SET content=? WHERE blog_id=? AND id=?"
-	DELETE_COMMENT_QUERY = "DELETE FROM comments WHERE blog_id=? AND id=?"
+	LIST_COMMENTS_QUERY     = "SELECT * FROM comments WHERE blog_id=?"
+	GET_COMMENT_QUERY       = "SELECT * FROM comments WHERE blog_id=? and id=?"
+	POST_COMMENT_QUERY      = "INSERT INTO comments (id, blog_id, content) VALUES (?,?,?)"
+	UPDATE_COMMENT_QUERY    = "UPDATE comments SET content=? WHERE blog_id=? AND id=?"
+	DELETE_COMMENT_QUERY    = "DELETE FROM comments WHERE blog_id=? AND id=?"
+	POST_COMMENT_LINK_QUERY = "INSERT INTO links (id, blog_id, rel, href) VALUES (?,?,?,?)"
 )
 
 // Get hashed password

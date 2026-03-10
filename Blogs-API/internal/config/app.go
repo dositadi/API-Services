@@ -56,10 +56,10 @@ func (a *App) InitializeCommentsRouter(router *mux.Router, handler b.BlogHandler
 	// implement the handlers
 	router.HandleFunc("/", handler.ListCommentsHandler).Methods("GET").Name("list-all-comments")
 	router.HandleFunc("/{id}", handler.GetCommentHandler).Methods("GET").Name("get-comment")
-	router.HandleFunc("/{id}", handler.PatchHandler).Methods("PATCH").Name("update-comment-field")
-	router.HandleFunc("/{id}", handler.UpdateHandler).Methods("PUT").Name("update-full-comment")
-	router.HandleFunc("/", handler.PostHandler).Methods("POST").Name("post-comment")
-	router.HandleFunc("/delete", handler.DeleteHandler).Methods("DELETE").Name("delete-comment")
+	router.HandleFunc("/{id}", handler.PatchCommentHandler).Methods("PATCH").Name("update-comment-field")
+	router.HandleFunc("/{id}", handler.UpdateCommentHandler).Methods("PUT").Name("update-full-comment")
+	router.HandleFunc("/", handler.PostCommentHandler).Methods("POST").Name("post-comment")
+	router.HandleFunc("/delete", handler.DeleteCommentHandler).Methods("DELETE").Name("delete-comment")
 	router.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 }
 

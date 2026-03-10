@@ -6,6 +6,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+
+	"github.com/google/uuid"
 )
 
 func (db *BlogStore) ListComments(ctx context.Context, blog_id string) ([]m.Comment, *m.ErrorMessage) {
@@ -125,6 +128,63 @@ func (db *BlogStore) PostComment(ctx context.Context, blog_id, id string, commen
 		}
 	}
 
+	href := fmt.Sprintf("blogs/%s/comments/%s", comment.BlogID, comment.Id)
+	link := m.Links{
+		Id:             uuid.NewString(),
+		BlogID:         comment.BlogID,
+		Relationship:   "self",
+		HyperReference: href,
+	}
+
+	linkResult, err := db.DB.ExecContext(ctx, h.POST_COMMENT_LINK_QUERY, link.Id, link.BlogID, link.Relationship, link.HyperReference)
+	if err != nil {
+		if errors.Is(err, sql.ErrConnDone) {
+			return &m.ErrorMessage{
+				Error:   h.CONN_ERR,
+				Details: []string{err.Error()},
+				Code:    h.SERVER_ERROR_CODE,
+			}
+		}
+		return &m.ErrorMessage{
+			Error:   h.SERVER_ERROR,
+			Details: []string{err.Error()},
+			Code:    h.SERVER_ERROR_CODE,
+		}
+	}
+
+	rowsAffected2, err3 := linkResult.RowsAffected()
+	if err3 != nil {
+		return &m.ErrorMessage{
+			Error:   h.SERVER_ERROR,
+			Details: []string{err3.Error()},
+			Code:    h.SERVER_ERROR_CODE,
+		}
+	}
+
+	if rowsAffected2 == 0 {
+		return &m.ErrorMessage{
+			Error:   h.NOT_FOUND_ERR,
+			Details: []string{h.NOT_FOUND_ERR_DETAIL},
+			Code:    h.NOT_FOUND_ERR_CODE,
+		}
+	}
+
+	err4 := db.IncrementCommentCount(ctx, blog_id)
+	if err4 != nil {
+		if err4.Error == h.CONN_ERR {
+			return &m.ErrorMessage{
+				Error:   h.CONN_ERR,
+				Details: []string{err.Error()},
+				Code:    h.SERVER_ERROR_CODE,
+			}
+		}
+		return &m.ErrorMessage{
+			Error:   h.SERVER_ERROR,
+			Details: []string{err.Error()},
+			Code:    h.SERVER_ERROR_CODE,
+		}
+	}
+
 	return nil
 }
 
@@ -147,7 +207,7 @@ func (db *BlogStore) PatchComment(ctx context.Context, blog_id, id string, query
 
 	err2 := db.UpdateComment(ctx, blog_id, id, comment)
 	if err2 != nil {
-		return err
+		return err2
 	}
 
 	return nil
@@ -191,6 +251,94 @@ func (db *BlogStore) UpdateComment(ctx context.Context, blog_id, id string, comm
 
 func (db *BlogStore) DeleteComment(ctx context.Context, blog_id, id string) *m.ErrorMessage {
 	result, err := db.DB.ExecContext(ctx, h.DELETE_COMMENT_QUERY, blog_id, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrConnDone) {
+			return &m.ErrorMessage{
+				Error:   h.CONN_ERR,
+				Details: []string{err.Error()},
+				Code:    h.SERVER_ERROR_CODE,
+			}
+		}
+		return &m.ErrorMessage{
+			Error:   h.SERVER_ERROR,
+			Details: []string{err.Error()},
+			Code:    h.SERVER_ERROR_CODE,
+		}
+	}
+
+	rowsAffected, err2 := result.RowsAffected()
+	if err2 != nil {
+		return &m.ErrorMessage{
+			Error:   h.SERVER_ERROR,
+			Details: []string{h.SERVER_ERROR_DETAIL},
+			Code:    h.SERVER_ERROR_CODE,
+		}
+	}
+
+	if rowsAffected == 0 {
+		return &m.ErrorMessage{
+			Error:   h.NOT_FOUND_ERR,
+			Details: []string{h.NOT_FOUND_ERR_DETAIL},
+			Code:    h.NOT_FOUND_ERR_CODE,
+		}
+	}
+
+	err3 := db.DecrementCommentCount(ctx, blog_id)
+	if err3 != nil {
+		if err3.Error == h.CONN_ERR {
+			return &m.ErrorMessage{
+				Error:   h.CONN_ERR,
+				Details: []string{err.Error()},
+				Code:    h.SERVER_ERROR_CODE,
+			}
+		}
+		return &m.ErrorMessage{
+			Error:   h.SERVER_ERROR,
+			Details: []string{err.Error()},
+			Code:    h.SERVER_ERROR_CODE,
+		}
+	}
+	return nil
+}
+
+func (db *BlogStore) IncrementCommentCount(ctx context.Context, blog_id string) *m.ErrorMessage {
+	result, err := db.DB.ExecContext(ctx, h.UPDATE_COMMENT_COUNT_QUERY_INCR, blog_id)
+	if err != nil {
+		if errors.Is(err, sql.ErrConnDone) {
+			return &m.ErrorMessage{
+				Error:   h.CONN_ERR,
+				Details: []string{err.Error()},
+				Code:    h.SERVER_ERROR_CODE,
+			}
+		}
+		return &m.ErrorMessage{
+			Error:   h.SERVER_ERROR,
+			Details: []string{err.Error()},
+			Code:    h.SERVER_ERROR_CODE,
+		}
+	}
+
+	rowsAffected, err2 := result.RowsAffected()
+	if err2 != nil {
+		return &m.ErrorMessage{
+			Error:   h.SERVER_ERROR,
+			Details: []string{h.SERVER_ERROR_DETAIL},
+			Code:    h.SERVER_ERROR_CODE,
+		}
+	}
+
+	if rowsAffected == 0 {
+		return &m.ErrorMessage{
+			Error:   h.NOT_FOUND_ERR,
+			Details: []string{h.NOT_FOUND_ERR_DETAIL},
+			Code:    h.NOT_FOUND_ERR_CODE,
+		}
+	}
+	return nil
+}
+
+func (db *BlogStore) DecrementCommentCount(ctx context.Context, blog_id string) *m.ErrorMessage {
+	result, err := db.DB.ExecContext(ctx, h.UPDATE_COMMENT_COUNT_QUERY_DESC, blog_id)
 	if err != nil {
 		if errors.Is(err, sql.ErrConnDone) {
 			return &m.ErrorMessage{
